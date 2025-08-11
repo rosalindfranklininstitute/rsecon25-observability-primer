@@ -1,6 +1,14 @@
 # Observability: A Practical Primer for RSEs
 
-Walkthrough at RSECon25
+A walkthrough at [RSECon25](https://rsecon25.society-rse.org/), a conference on [Research Software Engineering](https://society-rse.org/about/).
+
+## Learning objectives
+
+By the end of this walkthrough, participants should understand what observability is, where it can and should be used, and how to implement it within their own code for simple problems.
+
+## Audience and scope
+
+This walkthrough is designed as an initial primer rather than to be fully comprehensive. It's targetted as research software engineers (RSEs), and therefore is more tailored to research computing workloads (e.g. batch and cloud) rather than large enterprise use cases, although hopefully the introductory nature of the material is beneficial for a general audience.
 
 ## What is observability?
 
@@ -18,7 +26,7 @@ Use cases include:
 Most computational workloads can benefit from at least a basic level of observability, and you can always start with a simple approach as we'll soon see. However, the benefits of observability increase when any of the following factors apply:
 
 - Complexity - in general, more complex systems have more ways they can go wrong, and are harder and more costly (time and/or financial cost) to debug when they do
-- Remote workloads - i.e. software running on remote servers, cloud, or high-performance compute (HPC) clusters, since these workloads are often running for a long time, often have differences from development environments, and may encounter issues that are difficult to reproduce without sufficient context
+- Remote workloads - i.e. software running on remote servers, cloud, high-performance compute (HPC) clusters or distributed systems, since these workloads are often running for a long time, can have differences from development environments, and may encounter issues that are difficult to reproduce without sufficient context
 - High reliability/assurance environments - if there's a need for high uptime, security, or (in scientific contexts) reproducibility, being able to both spot potential issues early, and have audit capabilities when things go wrong, is valuable
 
 ## What types of workload can benefit from observability?
@@ -38,7 +46,7 @@ Logs are records of notable events within a system, which are usually timestampe
 
 ### Metrics
 
-Metrics are readouts of a system's state, which are often (but not always) numerical values. These can be continually varying, such as memory usage throughout a program's lifetime, or for batch workloads, terminal values (such as number of files processed, or job runtime).
+Metrics are readouts of a system's state, which are often (but not always) numerical values. These are usually continually varying, such as memory usage throughout a program's lifetime or the availability (uptime) of a network service, but for batch workloads, terminal values are often captured as well, such as number of files processed, or job runtime.
 
 ### Traces
 
