@@ -2,6 +2,16 @@
 
 A walkthrough at [RSECon25](https://rsecon25.society-rse.org/), a conference on [Research Software Engineering](https://society-rse.org/about/).
 
+## Materials
+
+* Slide deck
+    - [Download slides as PDF](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer/releases/latest/download/Slides.pdf)
+    - [Download slides as PPTX](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer/releases/latest/download/Slides.pptx)
+    - [View slides as Markdown](Slides.md)
+* Two directories from this repo containing worked examples:
+    - [00-microbench](00-microbench/), which demonstrates using [Microbench](https://github.com/alubbock/microbench) to capture metadata from batch Python workflows.
+    - [01-opentelemetry](01-opentelemetry/), which demonstrates using [OpenTelemetry](https://opentelemetry.io/) to create a [Prometheus](https://prometheus.io/) exporter for a [Flask](https://flask.palletsprojects.com/en/stable/) (Python) web app.
+
 ## Learning objectives
 
 By the end of this walkthrough, participants should understand what observability is, where it can and should be used, and how to implement it within their own code for simple problems.
