@@ -11,6 +11,12 @@ footer:
 Alex Lubbock
 Rosalind Franklin Insitute
 
+[https://github.com
+/rosalindfranklininstitute
+/rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)
+
+![bg right contain A QR code linking to https://github.com/rosalindfranklininstitute/rsecon25-observability-primer](github-qr-code.png)
+
 ---
 
 # Learning Objectives
@@ -88,19 +94,6 @@ Different environments → different tools & strategies.
 
 ---
 
-# Lead-In to Microbench
-
-➡ Let’s start with **batch/HPC jobs**.
-These are often opaque — you submit a script and get back results.
-
-How can we capture useful metadata
-(runtime, memory usage, environment, package versions)
-**with minimal effort?**
-
-👉 Enter **Microbench**.
-
----
-
 # Observability: A Practical Primer for RSEs
 ### Metadata Capture for Python Workflows
 
@@ -113,7 +106,9 @@ How can we capture useful metadata
   - How long did each function take?
   - Which software/library versions were active?
 - Traditional logs don’t always capture this metadata
-- *Metadata = context that makes results reproducible and debuggable.*
+- How can we capture useful metadata
+(runtime, memory usage, environment, package versions)
+**with minimal effort?**
 
 ---
 
@@ -122,11 +117,11 @@ How can we capture useful metadata
 - Lightweight Python package
   (`pip install microbench`)
 - Decorator-based: instrument functions with **minimal boilerplate**
-- Captures (e.g.):
+- Capture (e.g.):
   - Timing
   - Memory usage
   - Environment details (e.g., Python version, Conda env, Git commit)
-- Stores metadata for later analysis
+- Store metadata for later analysis
 
 ![bg right:40% contain Microbench logo](microbench-logo.png)
 
@@ -241,7 +236,7 @@ Microbench captures **metadata and telemetry**, but it is **not** a replacement 
 ---
 
 # Observability: A Practical Primer for RSEs
-### OpenTelemetry Metrics + Flask
+### OpenTelemetry Metrics for a Flask Web App
 
 ---
 
@@ -434,3 +429,9 @@ dice_rolls_total{roll_value="1"} 16.0
 # Questions?
 
 **BlueSky**: @AlexLubbock.com
+
+Slides and example code: [https://github.com
+/rosalindfranklininstitute
+/rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)
+
+![bg right contain A QR code linking to https://github.com/rosalindfranklininstitute/rsecon25-observability-primer](github-qr-code.png)
