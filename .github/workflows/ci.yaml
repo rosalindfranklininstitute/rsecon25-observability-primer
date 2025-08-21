@@ -91,8 +91,8 @@ jobs:
 
       - name: Build Slides
         run: |
-          marp Slides.md -o Slides.pdf
-          marp Slides.md --pptx -o Slides.pptx
+          marp Slides.md --allow-local-files -o Slides.pdf
+          marp Slides.md --allow-local-files --pptx -o Slides.pptx
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
