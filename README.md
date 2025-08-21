@@ -33,7 +33,7 @@ Most computational workloads can benefit from at least a basic level of observab
 
 In line with the factors discussed above, this walkthrough will focus on two of the most prominent use cases for observability:
 
-- Batch/HPC - software which runs as jobs or pipelines, including workload managers like [SLURM](https://slurm.schedmd.com/) or jobs run on workflow managers such as [Apache Airflow](https://airflow.apache.org/), [Argo Workflows](https://argoproj.github.io/workflows/) or field-specific tools such as [Snakemake](https://snakemake.readthedocs.io/en/stable/) or [Nextflow](https://www.nextflow.io/) in Bioinformatics.
+- Batch/HPC - software which runs as jobs or pipelines, including workload managers like [SLURM](https://slurm.schedmd.com/) or jobs run on workflow managers such as [Apache Airflow](https://airflow.apache.org/), [Argo Workflows](https://argoproj.github.io/workflows/) or field-specific tools such as [Snakemake](https://snakemake.readthedocs.io/en/stable/) or [Nextflow](https://www.nextflow.io/) in Bioinformatics. See the [separate README](Observability-for-batch-workloads.md) for this use case.
 - Cloud - network-accessible software, such as web sites/apps, [REST APIs](https://www.ibm.com/think/topics/rest-apis), or server software.
 
 There are often different considerations and tooling for observability in these two environments, which we'll cover as we move along.
@@ -51,3 +51,9 @@ Metrics are readouts of a system's state, which are often (but not always) numer
 ### Traces
 
 Traces show the path taken by a request or a single run of a piece of software. For a standalone piece of software, this will usually consist of a set of function calls. For example, when a Python program crashes, you'll see a [traceback](https://www.pythonmorsels.com/reading-tracebacks-in-python/). For networked software, traces show how each pieces of software invokes another, which might be a REST API call or a remote procedure call. This is particularly valuable where lots of smaller networked services interact, as is the case with [microservices](https://en.wikipedia.org/wiki/Microservices).
+
+## Tools
+
+For batch workloads, see [Observability for batch workloads](Observability-for-batch-workloads.md).
+
+For cloud and other workloads, see [awesome-observability](https://github.com/adriannovegil/awesome-observability) for best practices and a list of tools.

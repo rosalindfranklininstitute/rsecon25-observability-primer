@@ -1,0 +1,16 @@
+services:
+  app:
+    build: ./app
+    container_name: otel-app
+    ports:
+      - "9000:9000"  # app endpoint
+      - "9001:9001"  # app metrics endpoint
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+

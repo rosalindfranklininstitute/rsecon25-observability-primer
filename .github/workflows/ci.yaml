@@ -1,0 +1,106 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+  test-microbench:
+    name: Test Microbench
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          cd 00-microbench
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Python scripts
+        run: |
+          cd 00-microbench
+          for f in *.py; do
+            echo "Running $f..."
+            python "$f" || exit 1
+          done
+
+  test-otel:
+    name: Test OpenTelemetry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Start OpenTelemetry stack
+        run: |
+          cd 01-opentelemetry
+          docker compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          for i in {1..20}; do
+            if curl -s http://localhost:9000 && curl -s http://localhost:9001/metrics && curl -s http://localhost:9090; then
+              echo "Services are up!"
+              exit 0
+            fi
+            echo "Waiting for services..."
+            sleep 3
+          done
+          echo "Services did not start in time"
+          exit 1
+
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - test-microbench
+      - test-otel
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install Marp CLI
+        run: npm install -g @marp-team/marp-cli
+
+      - name: Build Slides
+        run: |
+          marp Slides.md -o Slides.pdf
+          marp Slides.md --pptx -o Slides.pptx
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: slides
+          path: |
+            Slides.pdf
+            Slides.pptx
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          artifacts: |
+            Slides.pdf
+            Slides.pptx
+          draft: false
+          prerelease: false

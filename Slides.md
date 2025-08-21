@@ -1,0 +1,435 @@
+---
+marp: true
+theme: default
+paginate: true
+---
+
+# Observability: A Practical Primer for RSEs
+### RSECon25 Walkthrough
+
+Alex Lubbock
+Rosalind Franklin Insitute
+
+---
+
+# Learning Objectives
+
+By the end of this walkthrough, you should:
+
+- Understand what **observability** is and why it matters
+- Know where observability can and should be applied
+- See how to add observability into your own Python code
+- Gain hands-on practice with simple use cases
+
+---
+
+# Audience & Scope
+
+- Targeted at **Research Software Engineers (RSEs)** and related roles
+- Focus: workloads in **batch/HPC** and **cloud/server** contexts
+- We will use **Python**, but the principles generalise
+- Introductory level
+
+---
+
+# What is Observability?
+
+**Definition:**
+Ability to understand the internal state of software and systems
+via event-driven outputs: **logs, metrics, traces**
+
+**Use cases:**
+
+- Troubleshooting failures
+- Performance monitoring & capacity planning
+- Security & auditing
+- Usage analytics
+
+---
+
+# Why Observability?
+
+Observability is most valuable when:
+
+- Systems are **complex** (many ways to fail)
+- Workloads are **remote** (HPC, cloud, distributed)
+- **High reliability** is required (uptime, reproducibility, security)
+
+➡ Research computing often checks *all three boxes*.
+
+---
+
+# Workloads We’ll Focus On
+
+- **Batch / HPC jobs**
+  (SLURM, Snakemake, Nextflow, Argo Workflows, Airflow)
+- **Cloud / long-running services**
+  (Web apps, APIs, servers)
+
+Different environments → different tools & strategies.
+
+---
+
+# Outputs Used in Observability
+
+- **Logs** → notable events, warnings, errors
+- **Metrics** → (numerical) state (e.g. memory usage, throughput, uptime)
+- **Traces** → sequence of function calls or request paths (e.g. Python traceback)
+
+---
+
+# Why Observability in Research?
+
+- **Reproducibility**: ensure results can be tied to exact code, data, and environment
+- **Debugging**: batch jobs may fail hours into execution → metadata helps diagnose
+- **Performance drift**: explain why the same job took 2 hours last month, 6 hours today
+- **Collaboration**: share structured context with teammates, not just “logs.txt”
+
+---
+
+# Lead-In to Microbench
+
+➡ Let’s start with **batch/HPC jobs**.
+These are often opaque — you submit a script and get back results.
+
+How can we capture useful metadata
+(runtime, memory usage, environment, package versions)
+**with minimal effort?**
+
+👉 Enter **Microbench**.
+
+---
+
+# Observability: A Practical Primer for RSEs
+### Metadata Capture for Python Workflows
+
+---
+
+# Motivation
+
+- When running jobs on HPC or batch systems:
+  - Do you know how much memory was used?
+  - How long did each function take?
+  - Which software/library versions were active?
+- Traditional logs don’t always capture this metadata
+- *Metadata = context that makes results reproducible and debuggable.*
+
+---
+
+# Why Microbench?
+
+- Lightweight Python package
+  (`pip install microbench`)
+- Decorator-based: instrument functions with **minimal boilerplate**
+- Captures (e.g.):
+  - Timing
+  - Memory usage
+  - Environment details (e.g., Python version, Conda env, Git commit)
+- Stores metadata for later analysis
+
+![bg right:40% contain Microbench logo](microbench-logo.png)
+
+---
+
+# Environment Setup
+
+Create a Conda environment for the demo:
+
+```bash
+cd 00-microbench
+conda create -n microbench python=3.13 -y
+conda activate microbench
+pip install -r requirements.txt
+```
+
+---
+
+# 00-0 Basic Example
+
+```python
+from microbench import MicroBench
+import time
+
+bench = MicroBench()
+
+@bench
+def slow_function(x):
+    time.sleep(x)
+    return x
+
+slow_function(2)
+```
+
+---
+
+# 00-1 Extending with line profiler
+
+```python
+from microbench import MicroBench, MBLineProfiler, MBHostInfo, MBPythonVersion
+
+class MyBench(MicroBench, MBLineProfiler, MBHostInfo, MBPythonVersion):
+    pass
+
+bench = MyBench()
+
+@bench
+def compute(n):
+    squares = [i**2 for i in range(n)]
+    return sum(squares)
+
+compute(1_000_000)
+```
+
+---
+
+# 00-2 Telemetry capture
+
+```python
+from microbench import MicroBench
+
+class TelemetryBench(MicroBench):
+    telemetry_interval = 1  # sample every 1s
+
+    @staticmethod
+    def telemetry(process):
+        # For values you can capture from "process", see
+        # https://psutil.readthedocs.io/en/latest/#psutil.Process
+        return {'cpu_percent': process.cpu_percent()}
+
+bench = TelemetryBench()
+
+@bench
+def busy_work():
+    ...
+
+busy_work()
+```
+
+---
+
+# Where Microbench Helps
+
+- **Dependency mismatches**
+    - Confirms which versions of packages were active during execution
+
+- **Performance drift**
+    - Detects slower runs, different CPU/memory usage
+
+- **HPC reproducibility**
+    - Records environment + metadata for published results
+
+- ***Lightweight monitoring**
+    - No extra infrastructure, just decorate functions
+
+---
+
+# What Microbench *Doesn't* Do
+
+Microbench captures **metadata and telemetry**, but it is **not** a replacement for:
+
+- **Good reproducibility practices**:
+  - Version control & Git history
+  - Documentation of workflows
+  - CI/CD testing
+  - Reproducible environments (Conda, Poetry, virtualenvs)
+  - Containers (Docker/Singularity) for portability
+- **Full observability stacks** (Prometheus, OpenTelemetry, etc.)
+- **Debuggers / profilers** for in-depth code analysis
+- **Automated monitoring / alerting** for long-running services
+
+---
+
+# Observability: A Practical Primer for RSEs
+### OpenTelemetry Metrics + Flask
+
+---
+
+# Intro to OpenTelemetry
+
+- Open-source framework for **instrumenting applications**
+- Supports **metrics, logs, traces**
+- Vendor-agnostic: works with Prometheus, Jaeger, etc.
+- Language-agnostic (works with most popular languages)
+
+---
+
+# Intro to Prometheus
+
+- Open-source **monitoring & alerting** toolkit
+- Pull-based metrics collection
+- Stores metrics as **time-series data**
+- Integrates with dashboards like Grafana
+
+---
+
+# Environment Setup
+
+## Docker Compose (recommended)
+
+```bash
+cd 00-microbench
+docker compose up -d
+```
+
+## Python
+
+```bash
+cd 00-microbench/app
+conda create -n otel python=3.13 -y
+conda activate otel
+pip install -r requirements.txt
+python app.py
+```
+
+---
+
+# Motivating Example: Dice Roll App
+
+- Simple Flask web app
+- Endpoint: `/` → rolls a dice (1-6)
+- Track **how many times each number is rolled**
+
+```python
+app = Flask(__name__)
+
+@app.route("/")
+def roll_dice():
+    # Roll the dice (random number 1-6)
+    result = str(roll())
+```
+
+---
+
+# Adding Metrics: Dice Roll Counts (Setup)
+
+- Count **each number rolled**
+- Use **OpenTelemetry metrics API**
+- Export metrics to **Prometheus**
+
+```python
+# Setup - create a metric reader with a meter
+prefix = "DiceRoller"
+reader = PrometheusMetricReader(prefix)
+metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
+meter = metrics.get_meter_provider().get_meter("diceroller.meter")
+
+# Now create a counter instrument to make measurements with
+roll_counter = meter.create_counter(
+    "dice.rolls",
+    description="The number of rolls by roll value",
+)
+```
+
+---
+
+# Adding Metrics: Dice Roll Counts (Add counter)
+
+```python
+@app.route("/")
+def roll_dice():
+    # Roll the dice (random number 1-6)
+    result = str(roll())
+
+    # Count the dice roll against a tally for that value
+    roll_counter.add(1, {"roll.value": result})
+```
+
+---
+
+# The Web App
+
+- Flask app running locally (Docker or Python env.)
+- Open web browser to http://localhost:9000
+- `/` endpoint returns dice roll result, e.g.:
+
+```
+5
+```
+
+- Refresh the web page to generate dice rolls over ~20 seconds
+
+---
+
+# Metrics Export Page
+
+- OpenTelemetry exposes a `/metrics` endpoint
+- Open web browser to http://localhost:9001/metrics
+- Prometheus scrapes metrics from this page
+
+
+```
+# HELP dice_rolls_total The number of rolls by roll value
+# TYPE dice_rolls_total counter
+dice_rolls_total{roll_value="4"} 16.0
+dice_rolls_total{roll_value="2"} 19.0
+dice_rolls_total{roll_value="5"} 21.0
+dice_rolls_total{roll_value="3"} 22.0
+dice_rolls_total{roll_value="6"} 12.0
+dice_rolls_total{roll_value="1"} 16.0
+```
+
+---
+
+# Prometheus Metrics for Dice Roll
+
+- (Docker only) View the Prometheus UI at http://localhost:9090
+- Metrics are available for each dice number
+- Search for `dice_roll_total`
+
+![bg right contain drop-shadow A list of metrics values for the dice roll app, as a search query within the Prometheus web interface](prometheus-metrics-search.png)
+
+---
+
+# Aggregated Metrics Over Time
+
+- On the Prometheus **Graph** tab, search for
+  `sum by () (dice_rolls_total{instance='app:9001', job='otel-app'})`
+- PromQL allows SQL-like querying, aggregation
+
+![bg right contain drop-shadow A line graph showing the value of a Prometheus metric over time, within the Prometheus web interface](prometheus-time-series-graph.png)
+
+---
+
+# Other Use Cases for Metrics
+
+- Track **HTTP request count & latency**
+- Monitor **errors & exceptions**
+- Database query metrics
+- Custom application events
+
+---
+
+# Beyond Metrics: Logs & Traces
+
+- **Logs:** capture detailed runtime events
+- **Traces:** visualise request flows across services
+- Complements metrics to **fully understand app behavior**
+
+---
+
+# Summary
+
+- Observability
+    - Metrics + Logs + Traces
+    - Reproducibility, monitoring, troubleshooting, auditing
+- Microbench **captures metadata** from batch jobs
+- OpenTelemetry **standardises instrumentation**
+- Prometheus **collects and visualises metrics**
+
+---
+
+# Useful References
+
+- Microbench: [https://github.com/alubbock/microbench](https://github.com/alubbock/microbench)
+- OpenTelemetry Python: [https://opentelemetry.io/docs/python](https://opentelemetry.io/docs/python)
+- Prometheus: [https://prometheus.io/docs/introduction/overview/](https://prometheus.io/docs/introduction/overview/)
+- Metrics & Monitoring: [https://prometheus.io/docs/practices/instrumentation/](https://prometheus.io/docs/practices/instrumentation/)
+- OpenTelemetry + Prometheus Exporter: [https://opentelemetry.io/docs/instrumentation/python/exporters/prometheus/](https://opentelemetry.io/docs/instrumentation/python/exporters/prometheus/)
+- Loki (log aggregation): [https://grafana.com/oss/loki/](https://grafana.com/oss/loki/)
+- Jaeger (trace aggregation): [https://www.jaegertracing.io/](https://www.jaegertracing.io/)
+
+---
+
+# Questions?
+
+**BlueSky**: @AlexLubbock.com
