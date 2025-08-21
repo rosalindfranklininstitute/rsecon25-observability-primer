@@ -2,6 +2,7 @@
 marp: true
 theme: default
 paginate: true
+footer:
 ---
 
 # Observability: A Practical Primer for RSEs

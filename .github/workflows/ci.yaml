@@ -80,6 +80,15 @@ jobs:
       - name: Install Marp CLI
         run: npm install -g @marp-team/marp-cli
 
+      - name: Set environment variables
+        run: |
+          echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Update Slides footer with version and date
+        run: |
+          sed -i "s/^footer:.*/footer: $TAG ($DATE)/" Slides.md
+
       - name: Build Slides
         run: |
           marp Slides.md -o Slides.pdf
