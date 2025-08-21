@@ -9,7 +9,7 @@ footer:
 ### RSECon25 Walkthrough
 
 Alex Lubbock
-Rosalind Franklin Insitute
+Rosalind Franklin Institute
 
 [https://github.com
 /rosalindfranklininstitute
@@ -245,7 +245,7 @@ Microbench captures **metadata and telemetry**, but it is **not** a replacement 
 - Open-source framework for **instrumenting applications**
 - Supports **metrics, logs, traces**
 - Vendor-agnostic: works with Prometheus, Jaeger, etc.
-- Language-agnostic (works with most popular languages)
+- Language-agnostic: works with most popular languages
 
 ---
 
