@@ -428,7 +428,7 @@ dice_rolls_total{roll_value="1"} 16.0
 
 # Questions?
 
-**BlueSky**: @AlexLubbock.com
+**BlueSky**: [@AlexLubbock.com](https://bsky.app/profile/alexlubbock.com)
 
 Slides and example code: [https://github.com
 /rosalindfranklininstitute
