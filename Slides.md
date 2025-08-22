@@ -172,9 +172,7 @@ Frontend
 Clone the repo, if you haven't already:
 
 ```bash
-git clone https://github.com     \
-/rosalindfranklininstitute       \
-/rsecon25-observability-primer
+git clone https://github.com/rosalindfranklininstitute/rsecon25-observability-primer
 
 cd rsecon25-observability-primer
 ```
