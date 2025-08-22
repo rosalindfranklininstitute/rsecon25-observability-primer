@@ -253,8 +253,6 @@ bench = TelemetryBench()
 @bench
 def busy_work():
     ...
-
-busy_work()
 ```
 
 ---
