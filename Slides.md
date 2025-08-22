@@ -266,7 +266,7 @@ def busy_work():
 - **HPC reproducibility**
     - Records environment + metadata for published results
 
-- ***Lightweight monitoring**
+- **Lightweight monitoring**
     - No extra infrastructure, just decorate functions
 
 ---
