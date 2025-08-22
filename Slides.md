@@ -11,9 +11,10 @@ footer:
 Alex Lubbock
 Rosalind Franklin Institute
 
+**git clone
 [https://github.com
 /rosalindfranklininstitute
-/rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)
+/rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)**
 
 ![bg right contain A QR code linking to https://github.com/rosalindfranklininstitute/rsecon25-observability-primer](github-qr-code.png)
 
@@ -66,6 +67,15 @@ Observability is most valuable when:
 
 ---
 
+# Why Observability in Research?
+
+- **Reproducibility**: ensure results can be tied to exact code, data, and environment
+- **Debugging**: batch jobs may fail hours into execution → metadata helps diagnose
+- **Performance drift**: explain why the same job took 2 hours last month, 6 hours today
+- **Collaboration**: share structured context with teammates, not just “logs.txt”
+
+---
+
 # Workloads We’ll Focus On
 
 - **Batch / HPC jobs**
@@ -73,24 +83,54 @@ Observability is most valuable when:
 - **Cloud / long-running services**
   (Web apps, APIs, servers)
 
-Different environments → different tools & strategies.
+Different environments → different tools & strategies
 
 ---
 
-# Outputs Used in Observability
+# Outputs Used in Observability - Logs
 
 - **Logs** → notable events, warnings, errors
-- **Metrics** → (numerical) state (e.g. memory usage, throughput, uptime)
-- **Traces** → sequence of function calls or request paths (e.g. Python traceback)
+- Usually timestamped
+- Examples: system start/stop, exceptions, requests
+
+
+```
+***  DEBUG  | 2025-08-08 10:07:03 | Server started
+***  INFO   | 2025-08-08 10:08:37 | Request from user Alice for IMG01.TIF
+***  WARN   | 2025-08-08 10:08:37 | Memory usage high
+***  ERROR  | 2025-08-08 10:08:38 | Out of memory
+```
 
 ---
 
-# Why Observability in Research?
+# Outputs Used in Observability - Metrics
 
-- **Reproducibility**: ensure results can be tied to exact code, data, and environment
-- **Debugging**: batch jobs may fail hours into execution → metadata helps diagnose
-- **Performance drift**: explain why the same job took 2 hours last month, 6 hours today
-- **Collaboration**: share structured context with teammates, not just “logs.txt”
+- **Metrics** → (numerical) state
+(e.g. memory usage, throughput, uptime)
+
+```
+requests_per_second{url="/process-image"} 12.2
+requests_failed{url="/process-image"} 4.0
+```
+
+
+---
+
+# Outputs Used in Observability - Traces
+
+- **Traces** → sequence of function calls or request paths
+(e.g. Python traceback, API calls)
+
+```
+Frontend
+ ├─ Auth Service      |■■■■ 12ms
+ │   └─ Imaging API   |    ■■■■■■■■■■ 30ms
+ │       └─ Database  |              ■■■■■■■■■■■■■■■ 45ms
+ └─ Metrics Service   |■■■ 9ms
+---------------------------------------------------------
+ Total span time (sum): 95ms
+ Wall clock time (end-to-end): 87ms
+```
 
 ---
 
@@ -114,8 +154,8 @@ Different environments → different tools & strategies.
 
 # Why Microbench?
 
-- Lightweight Python package
-  (`pip install microbench`)
+- Lightweight Python package:
+  `pip install microbench`
 - Decorator-based: instrument functions with **minimal boilerplate**
 - Capture (e.g.):
   - Timing
@@ -127,9 +167,23 @@ Different environments → different tools & strategies.
 
 ---
 
+# Clone the Repo to Follow Along
+
+Clone the repo, if you haven't already:
+
+```bash
+git clone https://github.com     \
+/rosalindfranklininstitute       \
+/rsecon25-observability-primer
+
+cd rsecon25-observability-primer
+```
+
+---
+
 # Environment Setup
 
-Create a Conda environment for the demo:
+Create a Conda* environment for the demo:
 
 ```bash
 cd 00-microbench
@@ -137,6 +191,8 @@ conda create -n microbench python=3.13 -y
 conda activate microbench
 pip install -r requirements.txt
 ```
+
+*Or use venv/poetry/pipenv...
 
 ---
 
@@ -236,14 +292,14 @@ Microbench captures **metadata and telemetry**, but it is **not** a replacement 
 ---
 
 # Observability: A Practical Primer for RSEs
-### OpenTelemetry Metrics for a Flask Web App
+### Adding Metrics to a Flask Web App
 
 ---
 
 # Intro to OpenTelemetry
 
 - Open-source framework for **instrumenting applications**
-- Supports **metrics, logs, traces**
+- **Standardises formats** for metrics, logs, traces
 - Vendor-agnostic: works with Prometheus, Jaeger, etc.
 - Language-agnostic: works with most popular languages
 
@@ -263,16 +319,16 @@ Microbench captures **metadata and telemetry**, but it is **not** a replacement 
 ## Docker Compose (recommended)
 
 ```bash
-cd 00-microbench
+cd 01-prometheus
 docker compose up -d
 ```
 
 ## Python
 
 ```bash
-cd 00-microbench/app
-conda create -n otel python=3.13 -y
-conda activate otel
+cd 01-prometheus/app
+conda create -n prom python=3.13 -y
+conda activate prom
 pip install -r requirements.txt
 python app.py
 ```
@@ -283,7 +339,6 @@ python app.py
 
 - Simple Flask web app
 - Endpoint: `/` → rolls a dice (1-6)
-- Track **how many times each number is rolled**
 
 ```python
 app = Flask(__name__)
@@ -292,29 +347,31 @@ app = Flask(__name__)
 def roll_dice():
     # Roll the dice (random number 1-6)
     result = str(roll())
+
+    return result
 ```
 
 ---
 
 # Adding Metrics: Dice Roll Counts (Setup)
 
-- Count **each number rolled**
-- Use **OpenTelemetry metrics API**
-- Export metrics to **Prometheus**
+- Track **how many times each number is rolled**
+- Export metrics on **/metrics** endpoint
 
 ```python
-# Setup - create a metric reader with a meter
-prefix = "DiceRoller"
-reader = PrometheusMetricReader(prefix)
-metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
-meter = metrics.get_meter_provider().get_meter("diceroller.meter")
+# Add prometheus wsgi middleware to route /metrics requests
+app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+    '/metrics': make_wsgi_app()
+})
 
-# Now create a counter instrument to make measurements with
-roll_counter = meter.create_counter(
-    "dice.rolls",
-    description="The number of rolls by roll value",
+# Create a counter instrument with label "roll_value"
+roll_counter = Counter(
+    "dice_rolls", "The number of rolls by roll value", ["roll_value"]
 )
 ```
+
+* Other options available if not using Flask, see:
+https://prometheus.github.io/client_python/exporting/
 
 ---
 
@@ -327,7 +384,7 @@ def roll_dice():
     result = str(roll())
 
     # Count the dice roll against a tally for that value
-    roll_counter.add(1, {"roll.value": result})
+    roll_counter.labels(roll_value=result).inc()
 ```
 
 ---
@@ -348,10 +405,9 @@ def roll_dice():
 
 # Metrics Export Page
 
-- OpenTelemetry exposes a `/metrics` endpoint
-- Open web browser to http://localhost:9001/metrics
+- Prometheus exporter exposes a `/metrics` endpoint
+- Open web browser to http://localhost:9000/metrics
 - Prometheus scrapes metrics from this page
-
 
 ```
 # HELP dice_rolls_total The number of rolls by roll value
@@ -370,7 +426,7 @@ dice_rolls_total{roll_value="1"} 16.0
 
 - (Docker only) View the Prometheus UI at http://localhost:9090
 - Metrics are available for each dice number
-- Search for `dice_roll_total`
+- Search for `dice_rolls_total`
 
 ![bg right contain drop-shadow A list of metrics values for the dice roll app, as a search query within the Prometheus web interface](prometheus-metrics-search.png)
 
@@ -379,7 +435,8 @@ dice_rolls_total{roll_value="1"} 16.0
 # Aggregated Metrics Over Time
 
 - On the Prometheus **Graph** tab, search for
-  `sum by () (dice_rolls_total{instance='app:9001', job='otel-app'})`
+  `sum by () (dice_rolls_total{instance='app:9000', job='otel-app'})`
+- This shows total number of dice rolls over time
 - PromQL allows SQL-like querying, aggregation
 
 ![bg right contain drop-shadow A line graph showing the value of a Prometheus metric over time, within the Prometheus web interface](prometheus-time-series-graph.png)
@@ -392,6 +449,7 @@ dice_rolls_total{roll_value="1"} 16.0
 - Monitor **errors & exceptions**
 - Database query metrics
 - Custom application events
+- https://prometheus.io/docs/concepts/metric_types/
 
 ---
 
@@ -423,6 +481,7 @@ dice_rolls_total{roll_value="1"} 16.0
 - OpenTelemetry + Prometheus Exporter: [https://opentelemetry.io/docs/instrumentation/python/exporters/prometheus/](https://opentelemetry.io/docs/instrumentation/python/exporters/prometheus/)
 - Loki (log aggregation): [https://grafana.com/oss/loki/](https://grafana.com/oss/loki/)
 - Jaeger (trace aggregation): [https://www.jaegertracing.io/](https://www.jaegertracing.io/)
+- Microsoft on Observability: [https://microsoft.github.io/code-with-engineering-playbook/observability/](https://microsoft.github.io/code-with-engineering-playbook/observability/)
 
 ---
 

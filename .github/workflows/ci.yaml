@@ -35,22 +35,22 @@ jobs:
             python "$f" || exit 1
           done
 
-  test-otel:
-    name: Test OpenTelemetry
+  test-prom:
+    name: Test Prometheus and Flask app
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Start OpenTelemetry stack
+      - name: Start app and prometheus
         run: |
-          cd 01-opentelemetry
+          cd 01-prometheus
           docker compose up -d
 
       - name: Wait for services to be ready
         run: |
           for i in {1..20}; do
-            if curl -s http://localhost:9000 && curl -s http://localhost:9001/metrics && curl -s http://localhost:9090; then
+            if curl -s http://localhost:9000 && curl -s http://localhost:9000/metrics && curl -s http://localhost:9090; then
               echo "Services are up!"
               exit 0
             fi
@@ -67,7 +67,7 @@ jobs:
       contents: write
     needs:
       - test-microbench
-      - test-otel
+      - test-prom
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

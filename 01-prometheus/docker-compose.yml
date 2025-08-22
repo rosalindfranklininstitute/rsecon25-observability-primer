@@ -3,8 +3,7 @@ services:
     build: ./app
     container_name: otel-app
     ports:
-      - "9000:9000"  # app endpoint
-      - "9001:9001"  # app metrics endpoint
+      - "9000:9000"
 
   prometheus:
     image: prom/prometheus:latest
