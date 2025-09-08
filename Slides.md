@@ -5,16 +5,18 @@ paginate: true
 footer:
 ---
 
-# Observability: A Practical Primer for RSEs
-### RSECon25 Walkthrough
+# Observability:<br>A Practical Primer<br>for RSEs
 
-Alex Lubbock
+**Alex Lubbock**
 Rosalind Franklin Institute
 
-**git clone
+> git clone
 [https://github.com
 /rosalindfranklininstitute
-/rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)**
+/rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)
+
+
+![w:250 Logo of the Rosalind Franklin Institute](rfi-logo.jpg)
 
 ![bg right contain A QR code linking to https://github.com/rosalindfranklininstitute/rsecon25-observability-primer](github-qr-code.png)
 
@@ -496,8 +498,15 @@ dice_rolls_total{roll_value="1"} 16.0
 
 **BlueSky**: [@AlexLubbock.com](https://bsky.app/profile/alexlubbock.com)
 
+
 Slides and example code: [https://github.com
 /rosalindfranklininstitute
 /rsecon25-observability-primer](https://github.com/rosalindfranklininstitute/rsecon25-observability-primer)
+
+&nbsp;
+
+&nbsp;
+
+![w:360 Logo of the Rosalind Franklin Institute](rfi-logo.jpg)
 
 ![bg right contain A QR code linking to https://github.com/rosalindfranklininstitute/rsecon25-observability-primer](github-qr-code.png)
