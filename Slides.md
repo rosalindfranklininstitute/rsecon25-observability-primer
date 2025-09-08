@@ -396,6 +396,7 @@ def roll_dice():
 ```
 
 - Refresh the web page to generate dice rolls over ~20 seconds
+- Or use the `./generate-dice-rolls.sh` script (Linux/Mac/WSL only)
 
 ---
 
@@ -436,6 +437,16 @@ dice_rolls_total{roll_value="1"} 16.0
 - PromQL allows SQL-like querying, aggregation
 
 ![bg right contain drop-shadow A line graph showing the value of a Prometheus metric over time, within the Prometheus web interface](prometheus-time-series-graph.png)
+
+---
+
+# Grafana dashboards
+
+- (Docker only) View the Grafana UI at http://localhost:3000
+- Login in using username `admin`, password `admin`
+- (Change password if prompted)
+
+![bg right contain drop-shadow A Grafana dashboard showing a histogram of dice rolls by value, and a line graph of dice rolls by value over time](grafana-dashboard.png)
 
 ---
 
