@@ -10,7 +10,7 @@ A walkthrough at [RSECon25](https://rsecon25.society-rse.org/), a conference on 
     - [View slides as Markdown](Slides.md)
 * Two directories from this repo containing worked examples:
     - [00-microbench](00-microbench/), which demonstrates using [Microbench](https://github.com/alubbock/microbench) to capture metadata from batch Python workflows.
-    - [01-opentelemetry](01-opentelemetry/), which demonstrates using [OpenTelemetry](https://opentelemetry.io/) to create a [Prometheus](https://prometheus.io/) exporter for a [Flask](https://flask.palletsprojects.com/en/stable/) (Python) web app.
+    - [01-prometheus](01-prometheus/), which demonstrates using a [Prometheus](https://prometheus.io/) exporter for a [Flask](https://flask.palletsprojects.com/en/stable/) (Python) web app.
 
 ## Learning objectives
 
