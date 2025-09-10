@@ -78,17 +78,6 @@ Observability is most valuable when:
 
 ---
 
-# Workloads We’ll Focus On
-
-- **Batch / HPC jobs**
-  (SLURM, Snakemake, Nextflow, Argo Workflows, Airflow)
-- **Cloud / long-running services**
-  (Web apps, APIs, servers)
-
-Different environments → different tools & strategies
-
----
-
 # Outputs Used in Observability - Logs
 
 - **Logs** → notable events, warnings, errors
@@ -130,9 +119,20 @@ Frontend
  │       └─ Database  |              ■■■■■■■■■■■■■■■ 45ms
  └─ Metrics Service   |■■■ 9ms
 ---------------------------------------------------------
- Total span time (sum): 95ms
+ Total span time (sum): 96ms
  Wall clock time (end-to-end): 87ms
 ```
+
+---
+
+# Workloads We’ll Focus On
+
+- **Batch / HPC jobs**
+  (SLURM, Snakemake, Nextflow, Argo Workflows, Airflow)
+- **Cloud / long-running services**
+  (Web apps, APIs, servers)
+
+Different environments → different tools & strategies
 
 ---
 
